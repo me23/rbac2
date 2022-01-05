@@ -92,8 +92,8 @@ function toTree(role, rules) {
 function findPaths(root, permission) {
   const self = arguments.callee;
   const paths = [];
-
-  if (root.value === permission) {
+  const pattern = root.value.indexOf('*') !== -1 ? new RegExp(root.value.replace('*', '.*')) : null;
+  if (root.value === permission || pattern && pattern.test(permission)) {
     paths.push([root]);
   } else {
     _.each(root.children, function(child) {

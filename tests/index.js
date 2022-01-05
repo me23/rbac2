@@ -16,7 +16,10 @@ var rules = [
   {a: 'superadmin'     , can: 'delete user'},
   {a: 'superadmin'     , can: 'admin'},
   {a: 'user'           , can: 'visitor'},
-  {a: 'user'           , can: 'read articles'}
+  {a: 'user'           , can: 'read articles'},
+  {a: 'wildcard'       , can: 'role_a_*'},
+  {a: 'user'           , can: 'role_a_cmd_b'},
+  {a: 'wildcardAll'    , can: '*'},
 ];
 
 describe('RBAC', function () {
@@ -55,6 +58,29 @@ describe('RBAC', function () {
         assert.ok(res);
         done();
       });
+    });
+
+    it('should work with no-condition paths with wildcard', function (done) {
+      rbac.check('wildcard', 'role_a_cmd_b', function (err, res) {
+        if (err) {
+          throw err;
+        }
+        assert.ok(res);
+        done();
+      });
+    });
+
+    it('should work with no-condition paths with wildcard for all can-entries', function (done) {
+      for(let i in rules) {
+        const rule = rules[i];
+        rbac.check('wildcardAll', rule.can, function (err, res) {
+          if (err) {
+            throw err;
+          }
+          assert.ok(res);
+        });
+      }
+      done();
     });
   });
 });
@@ -95,6 +121,29 @@ describe('RBAC with caching', function () {
         assert.ok(res);
         done();
       });
+    });
+
+    it('should work with no-condition paths with wildcard', function (done) {
+      rbac.check('wildcard', 'role_a_cmd_b', function (err, res) {
+        if (err) {
+          throw err;
+        }
+        assert.ok(res);
+        done();
+      });
+    });
+
+    it('should work with no-condition paths with wildcard for all can-entries', function (done) {
+      for(let i in rules) {
+        const rule = rules[i];
+        rbac.check('wildcardAll', rule.can, function (err, res) {
+          if (err) {
+            throw err;
+          }
+          assert.ok(res);
+        });
+      }
+      done();
     });
   });
 });
