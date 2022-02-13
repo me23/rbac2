@@ -1,20 +1,21 @@
 # rbac2
-[![NPM version](https://badge.fury.io/js/%40luislobo%2Frbac2.svg)](https://badge.fury.io/js/%40luislobo%2Frbac2) [![Build Status](https://github.com/luislobo/rbac2/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/luislobo/rbac2/actions/workflows/build.yml)
+[![npm version](https://badge.fury.io/js/@twenty20solutions%2Frbac2.svg)](https://badge.fury.io/js/@twenty20solutions%2Frbac2) [![Build Status](https://github.com/twenty20solutions/rbac2/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/twenty20solutions/rbac2/actions/workflows/build.yml)
 
 Simple RBAC checker with support for context checks.
 
 ## Installation
 
 ```bash
-npm install rbac2
+npm install @twenty20solutions/rbac2
 ```
 
 ## Usage
+
 ### Simple roles
 ```js
-var RBAC = require('rbac2');
+const RBAC = require('@twenty20solutions/rbac2');
 
-var rules = [
+const rules = [
     {a: 'author', can: 'publish posts'},
     {a: 'editor', can: 'edit posts'},
     {a: 'editor', can: 'author'},
@@ -22,7 +23,7 @@ var rules = [
     {a: 'admin',  can: 'do admin'}
 ];
 
-var rbac = new RBAC(rules);
+const rbac = new RBAC(rules);
 
 // Perform a check
 rbac.check('admin', 'edit posts', function (err, result) {
@@ -30,10 +31,34 @@ rbac.check('admin', 'edit posts', function (err, result) {
 });
 ```
 
+### rbac.check
+#### Use callbacks, promises or async/await
+
+```js
+// Using callbacks
+rbac.check('admin', 'edit posts', function (err, result) {
+    // result: true
+});
+
+// Using promises
+rbac.check('admin', 'edit posts')
+  .then(result => {
+    // result: true
+  });
+
+// Using async/await
+const result = await rbac.check('admin', 'edit posts');
+// result: true
+```
+
+If a callback function is not passed, a promise is returned. This will throw an error in later versions of node if a
+promise rejection isn't explicitly handled! All errors from context checks are passed upwards to the calling check
+function.
+
 ### Adding context checks
 You can specify context checks in rules by adding a `when` function:
 ```js
-var rules = [
+const rules = [
     {a: 'author', can: 'publish posts'},
     {a: 'editor', can: 'edit posts'},
     {a: 'user',   can: 'editor', when: function (params, callback) {
@@ -49,9 +74,20 @@ var rules = [
 ```
 And check by passing context parameters:
 ```js
-rbac.check('user', 'edit posts', {postId: 23, userId:12}, function (err, result) {
+// Callbacks
+rbac.check('user', 'edit posts', { postId: 23, userId:12 }, function (err, result) {
     // ...
 });
+
+// Promises
+rbac.check('user', 'edit posts', { postId: 23, userId:12 })
+  .then((result) => {
+    // ...
+  });
+
+
+// async/await
+const result = await rbac.check('user', 'edit posts', { postId: 23, userId:12 })
 ```
 
 In the code above, we set the rule that any user can become the editor
@@ -66,7 +102,7 @@ as `callback(err, result)`, where `result` should be boolean. (If `err` is not
 #### No subject, role or permission - only hierarchy
 This is valid:
 ```js
-var rules = [
+const rules = [
     {a: 'editor',     can: 'edit posts'},
     {a: 'edit posts', can: 'change post url'}
 ];
@@ -75,7 +111,7 @@ var rules = [
 #### Cyclic hierarchy is NOT supported
 This is invalid:
 ```js
-var rules = [
+const rules = [
     {a: 'admin', can: 'user'},
     {a: 'user',  can: 'admin', when: function (err, callback) {...}}
 ];
@@ -86,7 +122,7 @@ and will result in an indefinite loop.
 #### Conditional and non-conditional paths
 Given these rules:
 ```js
-var rules = [
+const rules = [
     {a: 'editor', can: 'edit posts'},
     {a: 'user',   can: 'editor', when: function (params, callback) {
         // business logic check
@@ -127,15 +163,15 @@ considered to be checked AND successful.
 If the whole path is needed to be checked, then you can instantiate RBAC with an optional second parameter, checkFullPath, or set it after creating the object. It defaults to false, unless set.
 
 ```js
-var RBAC = require('rbac2', true);
+const RBAC = require('@twenty20solutions/rbac2', true);
 ```
 or
 ```js
-var RBAC = require('rbac2');
+const RBAC = require('@twenty20solutions/rbac2');
 RBAC.checkFullPath = true;
 ```
 
-> **In general**: Paths are traveresed continuously till conditional checks exist;
+> **In general**: Paths are traversed continuously till conditional checks exist;
 > if a node in the path is hopped without a conditional check, the remaining path
 > is considered to be solved and the result is true.
 > If checkFullPath, then the whole path needs to be satisfied until the end.
@@ -143,7 +179,7 @@ RBAC.checkFullPath = true;
 #### Multiple paths to same permission
 For the following rules:
 ```js
-var rules = [
+const rules = [
     {a: 'editor', can: 'edit posts'},
     {a: 'user',   can: 'editor', when: function (params, callback) {
         // business logic check
@@ -169,25 +205,16 @@ immediately.
 ### Caching of rule trees
 If you have a large/complex set of rules with roles inheriting from other roles, generating the tree for the role can take a significant amount of time (tens of milliseconds). To speed up the checks, you can ask rbac to cache the tree for each role once it has been generated, at the expense of slightly more use of memory to hold the cached trees.
 
-To use in-memory caching of the trees, instantiate RBAC with an optional third parameter, cacheTrees, or set it after creating the object. It defaults to false, unless set.
+To use in-memory caching of the trees, instantiate RBAC with an optional third parameter (cacheTree). Default is false.
 
 ```js
-var RBAC = require('rbac2', false, true);
-```
-or
-```js
-var RBAC = require('rbac2');
-RBAC.cacheTrees = true;
+const RBAC = require('@twenty20solutions/rbac2')(rules, false, true);
 ```
 
 ## Testing
-Install dev dependencies and run:
 ```bash
-npm test
+npm i && npm test
 ```
-
-## Roadmap
--  Implement support for async/await/promises on `check` and `when` functions 
 
 ## License
 [MIT](LICENSE)
