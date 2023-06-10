@@ -32,27 +32,33 @@ describe.skip('treeUtils', () => {
   });
 
   describe('checkPath', () => {
-    it('should return true if all conditionals in the path are satisfied', async () => {
-      const tree = treeUtils.toTree('visitor', rules);
-      const paths = treeUtils.findPaths(tree, 'read articles');
-      if (paths.length > 0) {
-        const result = await treeUtils.checkPath(paths[0], {});
-        assert.strictEqual(result, true);
-      } else {
-        assert.fail('No paths found');
+    it(
+      'should return true if all conditionals in the path are satisfied',
+      async () => {
+        const tree = treeUtils.toTree('visitor', rules);
+        const paths = treeUtils.findPaths(tree, 'read articles');
+        if (paths.length > 0) {
+          const result = await treeUtils.checkPath(paths[0], {});
+          assert.strictEqual(result, true);
+        } else {
+          assert.fail('No paths found');
+        }
       }
-    });
+    );
 
-    it('should return false if any conditional in the path is not satisfied', async () => {
-      const tree = treeUtils.toTree('admin', rules);
-      const paths = treeUtils.findPaths(tree, 'delete articles'); // Ensure 'admin' has 'delete articles' permission
-      if (paths.length > 0) {
-        const result = await treeUtils.checkPath(paths[0], {}, true);
-        assert.strictEqual(result, false);
-      } else {
-        assert.fail('No paths found');
+    it(
+      'should return false if any conditional in the path is not satisfied',
+      async () => {
+        const tree = treeUtils.toTree('admin', rules);
+        const paths = treeUtils.findPaths(tree, 'delete articles'); // Ensure 'admin' has 'delete articles' permission
+        if (paths.length > 0) {
+          const result = await treeUtils.checkPath(paths[0], {}, true);
+          assert.strictEqual(result, false);
+        } else {
+          assert.fail('No paths found');
+        }
       }
-    });
+    );
   });
 });
 

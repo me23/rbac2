@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint --format codeframe '**/*.js'",
     "lint-fix": "eslint --fix --format codeframe '**/*.js'",
-    "test": "npm run lint && nyc mocha",
+    "test": "npm run lint && jest --coverage",
     "preversion": "/bin/bash ./scripts/preversion.sh",
     "version": "/bin/bash ./scripts/version.sh"
   },
@@ -45,7 +45,11 @@
     "eslint": "8.42.0",
     "eslint-formatter-codeframe": "^7.32.1",
     "eslint-plugin-chai-friendly": "0.7.2",
-    "mocha": "10.2.0",
-    "nyc": "15.1.0"
+    "jest": "^29.5.0"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "lib/**/*.js"
+    ]
   }
 }
